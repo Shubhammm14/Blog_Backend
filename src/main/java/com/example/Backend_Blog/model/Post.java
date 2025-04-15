@@ -66,6 +66,14 @@ public class Post {
         this.contentUrl = contentUrl;
     }
 
+    public User getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(User author) {
+        this.author = author;
+    }
+
     @Override
     public String toString() {
         return "Post{" +

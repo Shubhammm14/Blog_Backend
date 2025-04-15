@@ -22,9 +22,13 @@ public class PostServiceImpl implements PostService{
         Optional<Post> optionalPost = postRepository.findById(id);
         if (optionalPost.isPresent()) {
             Post existingPost = optionalPost.get();
+            if(updatedPost.getTitle()!=null)
             existingPost.setTitle(updatedPost.getTitle());
+            if(updatedPost.getDescription()!=null)
             existingPost.setDescription(updatedPost.getDescription());
+            if(updatedPost.getPostImg()!=null)
             existingPost.setPostImg(updatedPost.getPostImg());
+            if(updatedPost.getContentUrl()!=null)
             existingPost.setContentUrl(updatedPost.getContentUrl());
             return postRepository.save(existingPost);
         }

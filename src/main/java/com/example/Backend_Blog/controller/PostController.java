@@ -2,11 +2,13 @@ package com.example.Backend_Blog.controller;
 
 import com.example.Backend_Blog.model.Post;
 import com.example.Backend_Blog.services.PostService;
+import com.example.Backend_Blog.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -15,7 +17,8 @@ public class PostController {
 
     @Autowired
     private PostService postService;
-
+    @Autowired
+    private UserService userService;
     // Create a new post
     @PostMapping
     public ResponseEntity<?> createPost(@RequestBody Post post) {
@@ -61,7 +64,10 @@ public class PostController {
     }
     // Delete a post
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
+    public ResponseEntity<Void> deletePost(@PathVariable Long id,@RequestHeader("Authorization") String token) {
+        Post post=postService.getPostById(id).get();
+        if(!Objects.equals(post.getAuthor().getId(), userService.findUserByJwt(token).getId()))
+            return ResponseEntity.badRequest().build();
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
     }
