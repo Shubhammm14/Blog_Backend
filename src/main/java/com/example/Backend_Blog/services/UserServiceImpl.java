@@ -1,20 +1,23 @@
 package com.example.Backend_Blog.services;
 
 import com.example.Backend_Blog.config.JwtProvider;
+import com.example.Backend_Blog.model.Post;
 import com.example.Backend_Blog.model.User;
+import com.example.Backend_Blog.repository.PostRepository;
 import com.example.Backend_Blog.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private PostRepository postRepository;
     @Override
     public User findUserById(Long userId) {
         return userRepository.findById(userId).orElse(null);
@@ -53,5 +56,36 @@ public class UserServiceImpl implements UserService {
         String email = JwtProvider.getEmailFromJwtToken(token);
         return userRepository.findByEmail(email);
     }
+    @Override
+    public List<Post> getSavedPosts(User user)throws EntityNotFoundException {
+       if(user==null)
+           throw  new EntityNotFoundException("User not found");
+        return user.getSavedPost();
+    }
 
+    @Override
+    public void savePost(User user, Long postId) {
+        if(user==null)
+            throw new EntityNotFoundException("user not found");
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+
+        if (!user.getSavedPost().contains(post)) {
+            user.getSavedPost().add(post);
+            userRepository.save(user);
+        }
+    }
+
+    @Override
+    public void removeSavedPost(User user, Long postId) {
+        if(user==null)
+            throw new EntityNotFoundException("user not found");
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+
+        if (user.getSavedPost().contains(post)) {
+            user.getSavedPost().remove(post);
+            userRepository.save(user);
+        }
+    }
 }

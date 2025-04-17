@@ -2,6 +2,8 @@ package com.example.Backend_Blog.model;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 public class Post {
     @Id
@@ -14,7 +16,6 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "author_id")
     private User author;
-
     public Post(String title, String description, String postImg, String contentUrl, User author) {
         this.title = title;
         this.description = description;

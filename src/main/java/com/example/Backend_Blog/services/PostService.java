@@ -13,4 +13,6 @@ public interface PostService {
     Optional<Post> getPostById(Long id);
     List<Post> searchPosts(String keyword);
     List<Post> getAllPosts();
+
+    List<Post> getPostsByAuthorId(Long authorId);
 }

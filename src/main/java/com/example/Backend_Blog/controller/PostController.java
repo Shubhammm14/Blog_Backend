@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping
 public class PostController {
 
     @Autowired
@@ -20,20 +20,20 @@ public class PostController {
     @Autowired
     private UserService userService;
     // Create a new post
-    @PostMapping
-    public ResponseEntity<?> createPost(@RequestBody Post post) {
+    @PostMapping("/api/posts")
+    public ResponseEntity<?> createPost(@RequestBody Post post,@RequestHeader("Authorization") String token) {
         if (post.getTitle() == null || post.getDescription() == null ||
                 post.getPostImg() == null || post.getContentUrl() == null) {
             return ResponseEntity.badRequest().body("All fields (title, description, postImg, contentUrl) are required.");
         }
-
+        post.setAuthor(userService.findUserByJwt(token));
         Post createdPost = postService.createPost(post);
         return ResponseEntity.ok(createdPost);
     }
 
 
     // Get a single post by ID
-    @GetMapping("/{id}")
+    @GetMapping("posts/{id}")
     public ResponseEntity<Post> getPostById(@PathVariable Long id) {
         Optional<Post> post = postService.getPostById(id);
         return post.map(ResponseEntity::ok)
@@ -41,14 +41,14 @@ public class PostController {
     }
 
     // Get all posts
-    @GetMapping
+    @GetMapping("/posts")
     public ResponseEntity<List<Post>> getAllPosts() {
         List<Post> posts = postService.getAllPosts();
         return ResponseEntity.ok(posts);
     }
 
     // Update a post
-    @PutMapping("/{id}")
+    @PutMapping("/api/posts/{id}")
     public ResponseEntity<Post> updatePost(@PathVariable Long id, @RequestBody Post post) {
         Post updated = postService.updatePost(id, post);
         if (updated != null) {
@@ -63,7 +63,7 @@ public class PostController {
         return ResponseEntity.ok(results);
     }
     // Delete a post
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/api/posts/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable Long id,@RequestHeader("Authorization") String token) {
         Post post=postService.getPostById(id).get();
         if(!Objects.equals(post.getAuthor().getId(), userService.findUserByJwt(token).getId()))
@@ -71,4 +71,9 @@ public class PostController {
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/api/posts/users")
+    public List<Post> getPostsByAuthorId(@RequestHeader("Authorization") String token) {
+        return postService.getPostsByAuthorId(userService.findUserByJwt(token).getId());
+    }
+
 }

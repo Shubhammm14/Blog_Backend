@@ -1,5 +1,6 @@
 package com.example.Backend_Blog.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -19,7 +20,15 @@ public class User {
 
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private List<Post> posts;
+    @ManyToMany
+    @JoinTable(
+            name = "user_saved_posts",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "post_id")
+    )
+    private List<Post> savedPost;
     // Default constructor
     public User() {
     }
@@ -32,8 +41,21 @@ public class User {
 
     }
 
+    public List<Post> getSavedPost() {
+        return savedPost;
+    }
 
+    public void setSavedPost(List<Post> savedPost) {
+        this.savedPost = savedPost;
+    }
 
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
+    }
 
     // Getters and Setters
     public Long getId() {
